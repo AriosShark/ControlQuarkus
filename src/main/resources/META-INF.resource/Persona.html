@@ -1,10 +1,106 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8"/>
+    <title>Persona REST service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+        var app = angular.module("PersonaManagement", []);
+        //Controller Part
+        app.controller("PersonaManagementController", function ($scope, $http) {
+
+            //Initialize page with default data which is blank in this example
+            $scope.personas = [];
+
+            $scope.form ={
+            nombre: "",
+            apellido: "",
+            email: "",
+            telefono: "",
+            };
+
+            _refreshPageData();
+
+            $scope.add = function (){
+                var data ={"nombre": $scope.form.nombre,"apellido": $scope.form.apellido, "email": $scope.form.email,"telefono": $scope.form.telefono };
+
+                @$http({
+
+                    method: "POST",
+                    url: '/persona',
+                    data: angular.toJSON(data),
+                    headers: {
+                        'Content-Type': 'aplication/json'
+                    }
+                }).then(_success, _error);
+            };
+            /*metodos privados*/
+            function _refreshPageData(){
+                $http({
+                    method: 'GET',
+                    url: '/persona',
+                }).then(function successCallback(response){
+                    $scope.personas =response.data;
+                }, function errorCallback(response){
+                    console.log(response.statusText)
+                });
+            }
+
+            function _success(response){
+                _refreshPageData();
+                _clearForm();
+            }
+
+            function _error(response){
+                alert(response.data.message || response.statusText);
+            }
+
+            function _clearForm(){
+                $scope.form.name = "";
+                $scope.form.apellido ="";
+                $scope.form.email = "";
+                $scope.form.telefono = "";
+
+            });
+            </script>
 </head>
-<body>
+<body ng-app = "PersonaManagement" ng-controller="PersonaManagementController">
+
+    <div class="container">
+        <h1>REST service - Persona</h1>
+        <h3>add Persona</h3>
+        <form ng-submit="add()">
+            <div class="row">
+                <div class="col 6"><input type="text" placeholder="Nombre" ng-model="form.nombre" size="60"/></div>
+            </div>
+            <div class="row">
+                <div class="col 6"><input type="text" placeholder="Apellido" ng-model="form.apellido" size="60"/></div>
+            </div>
+            <div class="row">
+                <div class="col 6"><input type="text" placeholder="email" ng-model="form.email" size="60"/></div>
+            </div>
+            <div class="row">
+                <div class="col 6"><input type="text" placeholder="telefono" ng-model="form.telefono" size="60"/></div>
+            </div>
+            <input type="submit" value="Save"/>
+        </form>
+        <h3>Lista de Personas</h3>
+        <div class="row">
+            <div class="col-4">Nombre</div>
+            <div class="col-8">Apellido</div>
+        </div>
+        <div class="row" ng-repeat="persona in personas">
+            <div class="col-4">{{persona.nombre}}</div>
+            <div class="col-8">{{persona.apellido}}</div>
+        </div>
+
+
+
+
+
+
+
+
 
 </body>
-</html>
